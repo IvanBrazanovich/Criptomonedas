@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import useSelectMonedas from "../hooks/useSelectMonedas";
 import { monedas } from "../data";
 import Mensaje from "./Mensaje";
+import InfoMoneda from "./InfoMoneda";
+import "./spinner.css";
 
 const Formulario = () => {
   const [criptoArr, setCriptoArr] = useState([]);
@@ -12,6 +14,7 @@ const Formulario = () => {
   );
   const [infoArr, setInfoArr] = useState({});
   const [error, setError] = useState(false);
+  const [cargando, setCargando] = useState(false);
 
   //API CALL
   useEffect(() => {
@@ -39,13 +42,16 @@ const Formulario = () => {
   }, []);
 
   const fetchInfoCripto = async () => {
+    setInfoArr({});
+    setCargando(true);
     try {
       const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${cripto}&tsyms=${moneda}`;
 
       const response = await fetch(url);
       const infoArr = await response.json();
 
-      console.log(infoArr.DISPLAY[cripto][moneda]);
+      setInfoArr(infoArr.DISPLAY[cripto][moneda]);
+      setCargando(false);
     } catch (err) {
       console.log(err);
     }
@@ -68,7 +74,7 @@ const Formulario = () => {
   };
 
   return (
-    <div className="formulario container min-w-[30rem] text-center">
+    <div className="formulario container min-w-[32rem] text-center">
       <h1 className="text-3xl font-bold text-white leading-normal">
         Cotiza Criptomonedas al{" "}
         <span className="border-b-4 border-sky-500 py-2">Instante</span>
@@ -85,6 +91,20 @@ const Formulario = () => {
           Cotizar
         </button>
       </form>
+
+      {Object.keys(infoArr).length > 0 && <InfoMoneda infoArr={infoArr} />}
+      {cargando && (
+        <div className="container mt-36">
+          <div className="sk-chase mx-auto">
+            <div className="sk-chase-dot"></div>
+            <div className="sk-chase-dot"></div>
+            <div className="sk-chase-dot"></div>
+            <div className="sk-chase-dot"></div>
+            <div className="sk-chase-dot"></div>
+            <div className="sk-chase-dot"></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
